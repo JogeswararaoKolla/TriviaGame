@@ -8,28 +8,39 @@
 </head>
 
 <body>
+
     <div>
-        <h1>Trivia Game !!!</h1>
-      <!-- <input type="radio" value="myfirstradio">RadioButton<br> -->
+        <h1> Totally Trivia Game !!!</h1>
     </div>
 
-    <div id="timerDiv">Time Remaining in seconds: <span id="timersecDiv">00</span>
+    <div id="Container">
+        <div>Time Remaining in seconds: <span id="timersecDiv">00</span>
+        </div>
+        <div id="Questions">
+        </div>
     </div>
-    <div id="Questions">   
-    </div>
+
     <div id="Answers">
-        <div>Answered right:<span id="ansWrongCnt"></span></div>
-        <div>Answered wrong:<span id="ansCount"></span></div>
+        <div>All Done !!!</div>
+        <div>Correct answers:<span id="ansCount"></span></div>
+        <div>Wrong answers:<span id="wrongCount"></span></div>
+        <div>Unanswered :<span id="unansCount"></span></div>
     </div>
 
-        <!-- jQuery -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-        <script>
+    <script>
 
-            $(document).ready(function () {
+        $(document).ready(function () {
 
-                let triviaQues = [{
+            let unansCount = 0;
+            let ansCount = 0;
+            let wrongCount = 0;
+            let triviaQues=[];
+            function gameStartModule() {
+               
+                triviaQues = [{
                     question: "In what state was Barack Obama born in?",
                     answeroptions: ["Hawaii", "Mexico", "Phoenix"],
                     answer: "Hawaii"
@@ -51,74 +62,93 @@
                 {
                     question: "Name the First president of the United States of America?",
                     answeroptions: ["John Adams", "George Washington", "Abraham Lincoln", "Thomas Jefferson"],
-                    answer: "John Adams"
+                    answer: "George Washington"
 
                 }];
-     
-                for (let j=0;j<triviaQues.length;j++) {
 
+                $("#Answers").empty();
+
+                for (let j = 0; j < triviaQues.length; j++) {
                     let triviaQuesObj = {};
-                    triviaQuesObj=triviaQues[j];
+                    triviaQuesObj = triviaQues[j];
+                    // const targetDiv = $("<div>");
+                    // const quesObjp = $("<p>").text(triviaQuesObj.question);
+                    // targetDiv.append(quesObjp);
+                    $("#Questions").append($("<div>").append($("<p>").text(triviaQuesObj.question)));
+                    for (let i = 0; i < triviaQuesObj.answeroptions.length; i++) {
+                        const quesObjInput = $("<input type='radio'>");
+                        const quesObjInputSpan = $("<span>");
+                        quesObjInput.attr('name', 'answers_' + j);
+                        quesObjInput.val(triviaQuesObj.answeroptions[i]);
+                        quesObjInputSpan.text(triviaQuesObj.answeroptions[i]);
+                        $("#Questions").append(quesObjInput);
+                        $("#Questions").append(quesObjInputSpan);
+                    }
 
-                console.log(triviaQuesObj);
-                const targetDiv=$("<div>");
-               const quesObjp=$("<p>").text(triviaQuesObj.question);
-                    
-                targetDiv.append(quesObjp);
-
-                $("#Questions").append(targetDiv);
-                    
-                    console.log(targetDiv);
-
-                for(let i=0;i<triviaQuesObj.answeroptions.length;i++){
-                    console.log("Inside of loop");
-                  const quesObjInput=$("<input type='radio'>");
-                  console.log(quesObjInput);
-                  quesObjInput.attr('id',triviaQuesObj.answeroptions[i]);
-                  quesObjInput.attr('name','answers_'+ j);
-                  quesObjInput.val(triviaQuesObj.answeroptions[i]);
-                  const quesObjInputSpan = $("<span>");
-                    quesObjInputSpan.text(triviaQuesObj.answeroptions[i]);
-                  $("#Questions").append(quesObjInput);
-                  $("#Questions").append(quesObjInputSpan);
                 }
 
-
-            }
-
-        $("#Questions").append("<br>","<br>",$("<input type='button'>").attr({
-                    value :"SubmitOpt",
-                    id : 'btnGetValue'
+                // creates done button at the end of the page.
+                $("#Questions").append("<br>", "<br>", $("<input type='button'>").attr({
+                    value: "Done",
+                    id: 'btnGetValue'
                 }
                 ));
 
-             // quesCount++;
+            }
 
-             $("#btnGetValue").click(function(){
-                console.log($('input[name="answers"]:checked').val());
-             });
-                
-             let timerSec = 5;
-                let intervalID;
+            let timerSec = 40;
+            let intervalID;
 
-                $("#timersecDiv").text(timerSec);
+            $("#timersecDiv").text(timerSec);
 
-                setInterval(timerSecSet, 1000);
+            gameStartModule();
 
-                function timerSecSet() {
-                    console.log(timerSec);
-                    if (timerSec == 0) {
-                        return console.log("timeUp");
-                    }
-                    timerSec--;
-                    $("#timersecDiv").text(timerSec);
+            intervalID = setInterval(timerSecSet, 1000);
 
+            function timerSecSet() {
+                if (timerSec == 0) {
+                    checkEndofGame();
+                    return console.log("timeUp");
                 }
- 
+                timerSec--;
+                $("#timersecDiv").text(timerSec);
+            }
 
+            $("#btnGetValue").click(function () {
+                checkEndofGame();
             });
 
-        </script>
+            function checkEndofGame() {
+                clearInterval(intervalID);
+                for (let j = 0; j < triviaQues.length; j++) {
+                    const inputElement = $(":input[name=answers_" + j + "]:checked");
+
+                    if (inputElement.prop("checked")) {
+                        console.log(inputElement.attr('name')+ ";" + inputElement.prop("checked"));
+                        if (inputElement.val() == triviaQues[j].answer) {
+                            ansCount++;
+                        }
+                            wrongCount++;
+                        }
+                        console.log(inputElement.val());
+                        console.log(triviaQues[j].answer);
+                    }
+                    else {
+                        console.log("not defined else logic");
+                        unansCount++;
+                    }
+
+                }
+               console.log(unansCount,wrongCount,ansCount);
+               $("#Questions").empty();
+               $("#Answers").show();
+               $("#ansCount").text(unansCount);
+               $("#wrongCount").text(wrongCount);
+               $("#unansCount").text(ansCount);  
+            }
+        });
+
+    </script>
 
 </body>
 
